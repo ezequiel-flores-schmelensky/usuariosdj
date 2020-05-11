@@ -5,7 +5,9 @@ from django.views.generic import (
 from django.views.generic.edit import (
     FormView
 )
-from .forms import UserRegisterForm
+from django.contrib.auth import authenticate, login
+from django.urls import reverse_lazy
+from .forms import UserRegisterForm, LoginForm
 from .models import User
 
 class UserRegisterView(FormView):
@@ -25,3 +27,18 @@ class UserRegisterView(FormView):
         )
 
         return super(UserRegisterView, self).form_valid(form)
+
+
+class LoginUser(FormView):
+    template_name = "users/login.html"
+    form_class = LoginForm
+    success_url = reverse_lazy('home_app:panel')
+
+    def form_valid(self, form):
+        user = authenticate(
+            username=form.cleaned_data['username'],
+            password=form.cleaned_data['password']
+        )
+
+        login(self.request, user)
+        return super(LoginUser, self).form_valid(form)
